@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>HRDK UBT - READING TEST (20 Qs)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&family=Pyidaungsu:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', 'Pyidaungsu', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { 
+            background: linear-gradient(135deg, #f0f4f8 0%, #d9e2ec 100%);
+            color: #1e293b; min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 12px; user-select: none;
+        }
+        .ubt-card { 
+            background: #ffffff; border-radius: 20px; width: 100%; max-width: 460px; border: 1px solid #cbd5e1;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08), 0 20px 40px rgba(0, 0, 0, 0.05); overflow: hidden; display: flex; flex-direction: column; position: relative; 
+        }
+        .ubt-top-banner {
+            background: #1e3a8a; color: #ffffff; padding: 10px 14px; display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; font-weight: 800;
+        }
+        .header-logo { height: 28px; width: auto; object-fit: contain; background: #ffffff; padding: 2px 6px; border-radius: 4px; }
+        .header-title-text { text-align: center; letter-spacing: 0.5px; flex-grow: 1; font-size: 0.78rem; }
+        .header-banner img { width: 100%; height: auto; display: block; }
+        .title-container { padding: 12px 20px 4px 20px; text-align: center; }
+        .title-text { font-size: 0.85rem; font-weight: 800; line-height: 1.4; color: #475569; }
+        .login-bottom-logos {
+            display: flex; justify-content: center; align-items: center; gap: 15px; padding: 5px 20px 15px 20px; border-bottom: 1px solid #f1f5f9; margin-bottom: 5px;
+        }
+        .login-bottom-logos img { height: 32px; width: auto; object-fit: contain; border-radius: 6px; border: 1px solid #e2e8f0; background: #fff; padding: 2px; }
+        #welcome-screen, #exam-ui, #result-screen, #review-screen, #explanation-screen { width: 100%; display: none; }
+        #welcome-screen { display: block; }
+        .input-group { padding: 8px 20px 10px 20px; }
+        .info-label { font-size: 0.72rem; font-weight: 800; color: #64748b; text-transform: uppercase; margin-bottom: 5px; }
+        .form-input, .form-select { 
+            width: 100%; padding: 12px 14px; border: 1.5px solid #cbd5e1; border-radius: 12px; font-size: 0.9rem; font-weight: 700; color: #0f172a; outline: none; background: #f8fafc; transition: all 0.2s;
+        }
+        .form-input:focus, .form-select:focus { border-color: #2563eb; background: #ffffff; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
+        .action-container { padding: 10px 20px 24px 20px; }
+        .btn-confirm { 
+            width: 100%; padding: 14px; border: none; border-radius: 12px; background: #16a34a; color: #ffffff; font-size: 0.95rem; font-weight: 900; cursor: pointer; box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);
+        }
+        .btn-confirm:hover { background: #15803d; }
+        #exam-ui { padding: 16px; }
+        .top-bar { display: flex; justify-content: space-between; align-items: center; background: #1e3a8a; color: #ffffff; padding: 10px 16px; border-radius: 10px; margin-bottom: 8px; font-size: 11px; font-weight: 800; }
+        .timer-badge { padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: 900; background: rgba(255, 255, 255, 0.2); }
+        .progress-box { width: 100%; height: 6px; background: #e2e8f0; border-radius: 10px; margin-bottom: 12px; overflow: hidden; }
+        .progress-fill { height: 100%; width: 100%; background: #2563eb; transition: width 1s linear; }
+        .q-palette { display: flex; gap: 3px; justify-content: center; margin-bottom: 12px; flex-wrap: wrap; max-height: 60px; overflow-y: auto; }
+        .q-dot { width: 24px; height: 24px; border-radius: 5px; border: 1px solid #cbd5e1; display: flex; align-items: center; justify-content: center; font-size: 9.5px; font-weight: 800; cursor: pointer; background: #fff; color: #64748b; }
+        .q-dot.active { border-color: #2563eb; background: #2563eb; color: #ffffff; }
+        .q-dot.done { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+        .q-text { font-size: 13px; font-weight: 700; margin-bottom: 14px; line-height: 1.6; background: #f8fafc; padding: 14px; border-radius: 12px; border: 1px solid #e2e8f0; color: #0f172a; white-space: pre-line; position: relative; }
+        .answer-zone { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+        .opt-item { background: #fff; border: 1.5px solid #cbd5e1; padding: 11px 14px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; font-size: 12px; font-weight: 700; transition: all 0.15s ease; }
+        .opt-item:hover { border-color: #2563eb; background: #f0fdfa; }
+        .opt-item.active { background: #eff6ff; border-color: #2563eb; color: #1d4ed8; font-weight: 800; }
+        .opt-num { width: 22px; height: 22px; border: 1.5px solid currentColor; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 10px; font-size: 11px; flex-shrink: 0; }
+        .nav-controls { display: flex; gap: 8px; margin-bottom: 10px; }
+        .btn-nav { flex: 1; padding: 11px; border-radius: 8px; border: 1px solid #cbd5e1; background: #f8fafc; font-size: 12px; font-weight: 700; cursor: pointer; }
+        .btn-submit { background: #1e3a8a; color: #ffffff; border: none; padding: 13px; border-radius: 10px; font-size: 13px; font-weight: 900; cursor: pointer; width: 100%; }
+        .result-hud { padding: 16px 20px; display: flex; flex-direction: column; align-items: center; }
+        .final-res-title { font-size: 1.1rem; font-weight: 900; color: #1e3a8a; margin-bottom: 10px; letter-spacing: 0.5px; }
+        .res-table { width: 100%; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px; margin-bottom: 14px; }
+        .res-row { display: flex; justify-content: space-between; padding: 5px 0; font-size: 12px; font-weight: 700; border-bottom: 1px dashed #cbd5e1; }
+        .res-row:last-child { border-bottom: none; }
+        .res-label { color: #64748b; } .res-val { color: #0f172a; font-weight: 800; }
+        .score-circle { width: 80px; height: 80px; border-radius: 50%; background: #eff6ff; border: 4px solid #2563eb; display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 12px; }
+        .score-num { font-size: 1.3rem; font-weight: 900; color: #1d4ed8; line-height: 1; }
+        .score-lbl { font-size: 0.55rem; font-weight: 800; color: #64748b; margin-top: 2px; }
+        .res-action-grid { display: flex; gap: 8px; width: 100%; margin-top: 6px; }
+        .btn-compact-res { flex: 1; padding: 11px; border-radius: 10px; font-size: 12px; font-weight: 900; cursor: pointer; text-align: center; border: none; }
+        .btn-review-mini { background: #1e3a8a; color: #ffffff; }
+        .btn-exp-mini { background: #0284c7; color: #ffffff; }
+        .btn-restart-mini { background: #2563eb; color: #ffffff; width: 100%; }
+        #explanation-screen { padding: 16px; max-height: 85vh; overflow-y: auto; }
+        .exp-item { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px; margin-bottom: 14px; font-size: 12px; }
+        .exp-q-title { font-weight: 900; color: #1e3a8a; margin-bottom: 6px; font-size: 13px; }
+        .exp-detail { margin-top: 8px; padding-top: 8px; border-top: 1px dashed #cbd5e1; line-height: 1.5; color: #334155; }
+        .exp-correct { color: #15803d; font-weight: 800; }
+        .exp-wrong { color: #b91c1c; font-weight: 700; }
+    </style>
+</head>
+<body>
+    <div class="ubt-card">
+        <div id="welcome-screen">
+            <div class="ubt-top-banner">
+                <img src="https://i.imgur.com/sqGFBFw.jpeg" alt="HRD Logo" class="header-logo">
+                <span class="header-title-text">HRDK UBT - READING TEST </span>
+                <img src="https://i.imgur.com/KoJ00JT.jpeg" alt="Gxoker Logo" class="header-logo">
+            </div>
+            <div class="header-banner"><img src="https://i.imgur.com/fq28vPm.jpeg" alt="Banner"></div>
+            <div class="title-container"><div class="title-text">Created By Gxoker EPS-TOPIK</div></div>
+            <div class="login-bottom-logos">
+                <img src="https://i.imgur.com/sqGFBFw.jpeg" alt="HRD">
+                <img src="https://i.imgur.com/KoJ00JT.jpeg" alt="Gxoker">
+            </div>
+            <div class="input-group">
+                <div class="info-label">NAME (အမည်)</div>
+                <input type="text" id="username-field" class="form-input" placeholder="သင့်နာမည်..." autocomplete="off">
+            </div>
+            <div class="input-group">
+                <div class="info-label">PASSPORT (နိုင်ငံကူးလက်မှတ်)</div>
+                <input type="text" id="passport-field" class="form-input" placeholder="ဥပမာ- MH-3568**" autocomplete="off">
+            </div>
+            <div class="input-group">
+                <div class="info-label">SECTOR (လုပ်ငန်းခွင်)</div>
+                <select id="sector-field" class="form-select">
+                    <option value="Manufacturing (제조업)">Manufacturing (제조업) - ထုတ်လုပ်ရေး</option>
+                    <option value="Agriculture (농축산업)">Agriculture (농축산업) - စိုက်ပျိုးမွေးမြူရေး</option>
+                    <option value="Construction (건설업)">Construction (건설업) - ဆောက်လုပ်ရေး</option>
+                    <option value="Fishery (어업)">Fishery (어업) - ရေလုပ်ငန်း</option>
+                    <option value="Service (서비스업)">Service (서비스업) - ဝန်ဆောင်မှုလုပ်ငန်း</option>
+                </select>
+            </div>
+            <div class="action-container"><button class="btn-confirm" onclick="triggerExam()">CONFIRM & START</button></div>
+        </div>
+
+        <div id="exam-ui">
+            <div class="top-bar">
+                <div id="header-user-info">User | Sector</div>
+                <div class="timer-badge">⏱️ <span id="timer">20:00</span></div>
+            </div>
+            <div class="progress-box"><div class="progress-fill" id="p-bar"></div></div>
+            <div class="q-palette" id="palette"></div>
+            <div class="q-text" id="q-text">Loading...</div>
+            <div class="answer-zone" id="ans-list"></div>
+            <div class="nav-controls">
+                <button class="btn-nav" onclick="prevQ()">‹ ရှေ့သို့</button>
+                <button class="btn-nav" onclick="nextQ()">နောက်သို့ ›</button>
+            </div>
+            <button class="btn-submit" onclick="finishExam()">SUBMIT (အဖြေတင်သွင်းမည်)</button>
+        </div>
+
+        <div id="result-screen">
+            <div class="ubt-top-banner">
+                <img src="https://i.imgur.com/sqGFBFw.jpeg" alt="HRD Logo" class="header-logo">
+                <span class="header-title-text">Created By Gxoker - EXAM RESULT</span>
+                <img src="https://i.imgur.com/KoJ00JT.jpeg" alt="Gxoker Logo" class="header-logo">
+            </div>
+            <div class="result-hud">
+                <div class="final-res-title">EXAM RESULT SUMMARY</div>
+                <div class="score-circle">
+                    <div class="score-num" id="res-score">0</div>
+                    <div class="score-lbl">မှတ် (100)</div>
+                </div>
+                <div class="res-table">
+                    <div class="res-row"><span class="res-label">အမည် (Name):</span><span class="res-val" id="res-name">-</span></div>
+                    <div class="res-row"><span class="res-label">Passport:</span><span class="res-val" id="res-passport">-</span></div>
+                    <div class="res-row"><span class="res-label">Sector:</span><span class="res-val" id="res-sector">-</span></div>
+                    <div class="res-row"><span class="res-label">အမှန် (Correct):</span><span class="res-val" id="res-acc">0 / 20</span></div>
+                    <div class="res-row"><span class="res-label">ကြာမြင့်ချိန်:</span><span class="res-val" id="res-time">00:00</span></div>
+                </div>
+                <div class="res-action-grid">
+                    <button class="btn-compact-res btn-review-mini" onclick="showReview()">🔍 အဖြေစစ်ရန်</button>
+                    <button class="btn-compact-res btn-exp-mini" onclick="showExplanationScreen()">💡 ရှင်းပြချက်ကြည့်ရန်</button>
+                </div>
+                <div class="res-action-grid" style="margin-top: 8px;">
+                    <button class="btn-compact-res btn-restart-mini" onclick="location.reload()">🔄 ပြန်လည်ဖြေဆိုရန်</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="review-screen">
+            <div class="ubt-top-banner">
+                <img src="https://i.imgur.com/sqGFBFw.jpeg" alt="HRD Logo" class="header-logo">
+                <span class="header-title-text">Created By Gxoker - REVIEW MODE</span>
+                <img src="https://i.imgur.com/KoJ00JT.jpeg" alt="Gxoker Logo" class="header-logo">
+            </div>
+            <div id="review-content" style="padding: 12px; max-height: 70vh; overflow-y: auto;"></div>
+            <div class="action-container" style="padding: 10px 12px 12px 12px;"><button class="btn-submit" onclick="closeReview()">ရလဒ်စာရွက်သို့ ပြန်သွားမည်</button></div>
+        </div>
+
+        <div id="explanation-screen">
+            <div class="ubt-top-banner" style="margin-bottom: 12px; border-radius: 8px;">
+                <img src="https://i.imgur.com/sqGFBFw.jpeg" alt="HRD Logo" class="header-logo">
+                <span class="header-title-text">Created By Gxoker - MYANMAR EXPLANATIONS</span>
+                <img src="https://i.imgur.com/KoJ00JT.jpeg" alt="Gxoker Logo" class="header-logo">
+            </div>
+            <div id="explanation-content"></div>
+            <div class="action-container" style="padding: 10px 0 0 0;"><button class="btn-submit" onclick="closeExplanationScreen()">ရလဒ်စာရွက်သို့ ပြန်သွားမည်</button></div>
+        </div>
+  </div>
+        <script>
+    const allQuestions = [
+        {
+            q: "[1] 다음 빈칸에 들어갈 가장 알맞은 것을 고르십시오.\n\n작업장에 들어가기 전에 안전모를 바르게 ______ 현장 안으로 들어오십시오.",
+            a: ["쓰고", "써서", "쓰니까", "쓰려고"], c: 0,
+            exp: "<b>အမှန်: ① 쓰고</b><br>" +
+                 "ရှင်းပြချက်: 쓰다 က ဦးထုပ်ဆောင်းတာ ဖြစ်ပါတယ်ခင်ဗျာ။ ဦးထုပ်ဆောင်းပြီး ဦးထုပ်က ပျောက်မသွားဘဲ ခေါင်းပေါ်မှာ ဆောင်းထားလျက်သားကြီးနဲ့ လုပ်ငန်းခွင်ထဲ ဝင်သွားရတာမို့လို့ ဝတ်ဆင်ခြင်းကြိယာ + ဝင်သွားခြင်း (들어오다) မှာ -고 သာ အမှန်ဖြစ်ပါတယ်ခင်ဗျာ။<br>" +
+                 "• ② 써서 (မှား): ခန္ဓာကိုယ်မှာ ဝတ်ဆင်ထားဆဲ အခြေအနေကို ပြချင်ရင် -아서/어서 ကို လုံးဝ တွဲမသုံးရပါဘူးခင်ဗျာ။<br>" +
+                 "• ③ 쓰니까 (မှား): \"ဦးထုပ်ဆောင်းတဲ့အတွက် ဝင်လာပါ\" ဆိုပြီး ဦးထုပ်ဆောင်းတာက ဝင်လာရခြင်းရဲ့ အကြောင်းပြချက် မဟုတ်လို့ လွဲနေပါတယ်ခင်ဗျာ။<br>" +
+                 "• ④ 쓰려고 (မှား): \"ဦးထုပ်ဆောင်းဖို့အတွက် လုပ်ငန်းခွင်ထဲ ဝင်လာပါ\" ဆိုပြီး ရည်ရွယ်ချက် ကမောက်ကမ ဖြစ်သွားပါတယ်ခင်ဗျာ。"
+        },
+        {
+            q: "[2] 다음 빈칸에 들어갈 가장 알맞은 것을 고르십시오.\n\n감기에 심하게 ______ 오늘 출근하지 못하고 하루 종일 기숙사에서 쉬었습니다.",
+            a: ["걸리고", "걸려서", "걸리느라고", "걸리려고"], c: 1,
+            exp: "<b>အမှန်: ② 걸려서</b><br>" +
+                 "ရှင်းပြချက်: အလုပ်မဆင်းနိုင်ဘဲ အဆောင်မှာ တစ်နေကုန် နားနေရတဲ့ တိုက်ရိုက်အကြောင်းရင်းက \"အအေးမိဖျားနာလို့\" ဖြစ်ပါတယ်ခင်ဗျာ။ အကြောင်းနဲ့ အကျိုး တိုက်ရိုက်ဆက်စပ်တာမို့ -아서/어서 (걸려서) က အမှန်ဆုံးပါခင်ဗျာ။<br>" +
+                 "• ① 걸리고 (မှား): ဖျားတာနဲ့ အလုပ်မဆင်းတာက ရိုးရိုးအစဉ်လိုက် လုပ်တာမဟုတ်ဘဲ အကြောင်းပြချက်မို့ -고 မသုံးရပါဘူးခင်ဗျာ။<br>" +
+                 "• ③ 걸리느라고 (မှား): အအေးမိတာက ကိုယ်တိုင် အားစိုက်ပြီး လုပ်ယူတဲ့ အလုပ်မဟုတ်လို့ -느라고 သုံးခွင့် မရှိပါဘူးခင်ဗျာ။<br>" +
+                 "• ④ 걸리려고 (မှား): \"အအေးမိဖို့အတွက် အလုပ်မဆင်းဘူး\" ဆိုပြီး ရည်ရွယ်ချက် ဖြစ်သွားလို့ လုံးဝ မဖြစ်နိုင်ပါဘူးခင်ဗျာ。"
+        },
+        {
+            q: "[3] 다음 빈칸에 들어갈 가장 알맞은 것을 고르십시오.\n\n퇴근길에 회사 근처 마트에 ______ 저녁에 먹을 라면과 음료수를 사 가지고 왔습니다.",
+            a: ["들르고", "들러서", "들르니까", "들르려고"], c: 1,
+            exp: "<b>အမှန်: ② 들러서</b><br>" +
+                 "ရှင်းပြချက်: စတိုးဆိုင်ကို ဝင်ပြီးတော့ အဲဒီ စတိုးဆိုင်ထဲမှာတင် ခေါက်ဆွဲနဲ့ အအေး ဝယ်ယူခဲ့တာ ဖြစ်ပါတယ်ခင်ဗျာ။ ရှေ့က သွားတဲ့နေရာမှာတင် နောက်အလုပ်ကို ဆက်လုပ်တဲ့ တိုက်ရိုက်အဆက်အစပ်မို့ -아서/어서 (들러서) သာ သုံးရပါတယ်ခင်ဗျာ။<br>" +
+                 "• ① 들르고 (မှား): -고 သုံးရင် စတိုးဆိုင်ကိုလည်း ဝင်တယ်၊ ပြီးမှ တခြားနေရာကနေ ခေါက်ဆွဲဝယ်လာသလို သီးခြားအလုပ်တွေ ဖြစ်သွားပါတယ်ခင်ဗျာ။<br>" +
+                 "• ③ 들르니까 (မှား): အနောက်မှာ ပြီးသွားတဲ့ အတိတ်事实 ကြီးမို့ -(으)니까 သုံးတာ သဘာဝမကျပါဘူးခင်ဗျာ။<br>" +
+                 "• ④ 들르려고 (မှား): \"စတိုးဆိုင်ဝင်ဖို့အတွက် ခေါက်ဆွဲဝယ်လာတယ်\" ဆိုပြီး ရှေ့နောက် လွဲသွားပါတယ်ခင်ဗျာ。"
+        },
+        {
+            q: "[4] 다음 빈칸에 들어갈 가장 알맞은 것을 고르십시오.\n\n오늘은 날씨가 너무 춥고 바람이 많이 ______ 밖에서 작업하기가 힘듭니다.",
+            a: ["불고", "불어서", "부니까", "불려고"], c: 1,
+            exp: "<b>အမှန်: ② 불어서</b><br>" +
+                 "ရှင်းပြချက်: အပြင်ဘက်မှာ အလုပ်လုပ်ရ ခက်ခဲရခြင်းရဲ့ တိုက်ရိုက်အကြောင်းရင်းက \"လေတွေ အများကြီး တိုက်ခတ်နေလို့\" ဖြစ်ပါတယ်ခင်ဗျာ။ ဒါကြောင့် အကြောင်းပြချက် -아서/어서 (불어서) က အမှန်ဆုံးပါခင်ဗျာ။<br>" +
+                 "• ① 불고 (မှား): လေတိုက်တာက အပြင်မှာ အလုပ်လုပ်ရခက်ခြင်းရဲ့ အကြောင်းရင်း ဖြစ်နေလို့ ရိုးရိုး အစဉ်လိုက်ဆက်တဲ့ -고 မရပါဘူးခင်ဗျာ။<br>" +
+                 "• ③ 부니까 (မှား): အနောက်က စာကြောင်းက အမိန့်/တိုက်တွန်း မဟုတ်ဘဲ ရိုးရိုးဖော်ပြချက် (힘듭니다) သာ ဖြစ်လို့ -아서/어서 က ပိုမှန်ပါတယ်ခင်ဗျာ။<br>" +
+                 "• ④ 불려고 (မှား): \"လေတိုက်ဖို့အတွက် အပြင်မှာ အလုပ်လုပ်ရခက်တယ်\" ဆိုတာ အဓိပ္ပာယ် မရှိပါဘူးခင်ဗျာ。"
+        },
+        {
+            q: "[5] 다음 빈칸에 들어갈 가장 알맞은 것을 고르십시오.\n\n높은 곳에서 일할 때는 손에 자재를 ______ 사다리를 타지 말고 공구 가방을 이용하세요.",
+            a: ["들고", "들어서", "드니까", "들려고"], c: 0,
+            exp: "<b>အမှန်: ① 들고</b><br>" +
+                 "ရှင်းပြချက်: ပစ္စည်းကို လက်ထဲမှာ ကိုင်ဆောင်ထားဆဲ အခြေအနေကြီးနဲ့ လှေကားမတက်ပါနဲ့လို့ ပြောတာပါခင်ဗျာ။ ကိုင်ဆောင်ထားတဲ့ အခြေအနေ ဆက်လက်တည်ရှိမှုကို ပြတာမို့ -고 (들고) သာ အမှန်ဖြစ်ပါတယ်ခင်ဗျာ။<br>" +
+                 "• ② 들어서 (မှား): ပစ္စည်းကို မ,ပြီးတော့မှ လှေကားတက်တာ မဟုတ်ဘဲ လက်ထဲ ကိုင်ထားလျက်သားနဲ့ တက်ရတာမို့ -아서/어서 သုံးခွင့် မရှိပါဘူးခင်ဗျာ။<br>" +
+                 "• ③ 드니까 (မှား): \"ပစ္စည်းကို မ,ကိုင်တဲ့အတွက် လှေကားမတက်ပါနဲ့\" ဆိုပြီး မဆီမဆိုင် ဖြစ်သွားပါတယ်ခင်ဗျာ။<br>" +
+                 "• ④ 들려고 (မှား): \"ပစ္စည်းကိုင်ဖို့အတွက် လှေကားမတက်ပါနဲ့\" ဆိုပြီး လွဲနေပါတယ်ခင်ဗျာ。"
+        },
+        {
+            q: "[6] 다음 빈칸에 들어갈 가장 알맞은 것을 고르십시오.\n\n점심시간에 회사 식당에 ______ 동료들과 함께 찌개를 맛있게 먹었습니다.",
+            a: ["가고", "가서", "가려고", "가니까"], c: 1,
+            exp: "<b>အမှန်: ② 가서</b><br>" +
+                 "ရှင်းပြချက်: ကုမ္ပဏီ ထမင်းစားဆောင်ကို သွားပြီးတော့ အဲဒီ သွားတဲ့ နေရာမှာတင် လုပ်ဖော်ကိုင်ဖက်တွေနဲ့ 찌개 စားခဲ့တာပါခင်ဗျာ။ ဒီလို နေရာရွှေ့ပြောင်းကြိယာ (가다/오다) တွေနဲ့ နောက်အလုပ်ကို ဆက်စပ်ရင် 가서 먹다 (-아서/어서) သာ သုံးရပါတယ်ခင်ဗျာ။<br>" +
+                 "• ① 가고 (မှား): -고 သုံးရင် ထမင်းစားဆောင် သွားတာက တစ်ကိစ္စ၊ ထမင်းစားတာက တခြားနေရာမှာ စားသလိုမျိုး သီးခြားအလုပ်တွေ ဖြစ်သွားပါတယ်ခင်ဗျာ။<br>" +
+                 "• ③ 가려고 (မှား): \"ထမင်းစားဆောင် သွားဖို့အတွက် 찌개 စားခဲ့တယ်\" ဆိုတော့ အဓိပ္ပာယ် ပြောင်းပြန် ဖြစ်သွားပါတယ်ခင်ဗျာ။<br>" +
+                 "• ④ 가니까 (မှား): အနောက်က အတိတ်အဖြစ်အပျက် (먹었습니다) ဖြစ်လို့ သဘာဝမကျပါဘူးခင်ဗျာ。"
+        },
+        {
+            q: "[7] 다음 빈칸에 들어갈 가장 알맞은 것을 고르십시오.\n\n바닥에 흩어진 전선에 발이 ______ 넘어질 뻔했으니 전선을 잘 묶어 둡시다.",
+            a: ["걸리고", "걸려서", "걸리느라고", "걸리려고"], c: 1,
+            exp: "<b>အမှန်: ② 걸려서</b><br>" +
+                 "ရှင်းပြချက်: ကြမ်းပြင်ပေါ်က ဝါယာကြိုးမှာ ခြေထောက် ခလုတ်တိုက်မိတာက လဲကျလုနီးပါး ဖြစ်ခဲ့ရတဲ့ တိုက်ရိုက်အကြောင်းရင်းမို့ -아서/어서 (걸려서) က အမှန်ပါခင်ဗျာ။<br>" +
+                 "• ① 걸리고 (မှား): ခြေထောက်ခလုတ်တိုက်တာနဲ့ လဲကျမလိုဖြစ်တာက စီစဉ်လုပ်တာမဟုတ်ဘဲ ခလုတ်တိုက်လို့ ဖြစ်ရတဲ့ အကျိုးဆက်မို့ -고 မရပါဘူးခင်ဗျာ။<br>" +
+                 "• ③ 걸리느라고 (မှား): ခလုတ်တိုက်မိတာက ကိုယ်တိုင် အားစိုက်လုပ်ရတဲ့ အလုပ်မဟုတ်လို့ -느라고 သုံးခွင့် မရှိပါဘူးခင်ဗျာ။<br>" +
+                 "• ④ 걸리려고 (မှား): \"ခလုတ်တိုက်မိဖို့အတွက် လဲလုနီးပါး ဖြစ်ခဲ့တယ်\" ဆိုပြီး ရည်ရွယ်ချက် ဖြစ်သွားလို့ လုံးဝ မဖြစ်နိုင်ပါဘူးခင်ဗျာ。"
+        },
+        {
+            q: "[8] 다음 빈칸에 들어갈 가장 알맞은 것을 고르십시오.\n\n기름때가 묻은 작업복을 세탁기에 ______ 세제를 두 스푼 넣고 돌렸습니다.",
+            a: ["넣고", "넣어서", "넣으니까", "넣으려고"], c: 0,
+            exp: "<b>အမှန်: ① 넣고</b><br>" +
+                 "ရှင်းပြချက်: အဝတ်လျှော်စက်ထဲ အဝတ်ထည့်တယ် (အလုပ် ၁)၊ ပြီးတော့ ဆပ်ပြာမှုန့်ထည့်ပြီး စက်လည်တယ် (အလုပ် ၂) ဆိုပြီး သီးခြားအဆင့်တွေကို တစ်ခုပြီးတစ်ခု အစဉ်လိုက် လုပ်တာမို့ -고 က အမှန်ဆုံးပါခင်ဗျာ။<br>" +
+                 "• ② 넣어서 (မှား): အဝတ်ထည့်တာက ဆပ်ပြာမှုန့်ထည့်ရခြင်းရဲ့ အကြောင်းရင်း မဟုတ်လို့ မသဘာဝကျပါဘူးခင်ဗျာ။<br>" +
+                 "• ③ 넣으니까 (မှား): အနောက်မှာ ပြီးသွားတဲ့ အတိတ်事實 (돌렸습니다) သာ ဖြစ်လို့ -(으)니까 မသုံးပါဘူးခင်ဗျာ။<br>" +
+                 "• ④ 넣으려고 (မှား): \"အဝတ်ထည့်ဖို့အတွက် ဆပ်ပြာထည့်ခဲ့တယ်\" ဆိုတော့ အစီအစဉ် ပြောင်းပြန် ဖြစ်သွားပါတယ်ခင်ဗျာ。"
+        },
+        {
+            q: "[9] 다음 빈칸에 들어갈 가장 알맞은 것을 고르십시오.\n\n이 기계는 가격이 저렴하______ 성능도 뛰어나서 인기가 매우 많습니다.",
+            a: ["고", "아서", "어서", "니까"], c: 0,
+            exp: "<b>အမှန်: ① 고</b><br>" +
+                 "ရှင်းပြချက်: စက်ရဲ့ ကောင်းကွက်နှစ်ခုဖြစ်တဲ့ \"ဈေးလည်း သက်သာတယ်၊ စွမ်းဆောင်ရည်လည်း ကောင်းတယ်\" ဆိုပြီး အပြိုင်စီတန်း ချိတ်ဆက်တာမို့ -고 (저렴하고) က အမှန်ပါခင်ဗျာ။<br>" +
+                 "• ②/③ 아서/어서 (မှား): ဈေးသက်သာတာက စွမ်းဆောင်ရည်ကောင်းခြင်းရဲ့ အကြောင်းရင်း မဟုတ်လို့ အကြောင်းပြသဒ္ဒါ သုံးလို့မရပါဘူးခင်ဗျာ။<br>" +
+                 "• ④ 니까 (မှား): ကောင်းကွက်နှစ်ခုကို အပြိုင်ဖော်ပြတာမို့ -(으)니까 မသင့်တော်ပါဘူးခင်ဗျာ。"
+        },
+        {
+            q: "[10] 다음 빈칸에 들어갈 가장 알맞은 것을 고르십시오.\n\n휴게실 소파에 ______ 커피를 마시면서 스마트폰을 보았습니다.",
+            a: ["앉고", "앉아서", "앉으니까", "앉으려고"], c: 1,
+            exp: "<b>အမှန်: ② 앉아서</b><br>" +
+                 "ရှင်းပြချက်: ဆိုဖာပေါ်မှာ ထိုင်လိုက်တယ်၊ ပြီးတော့ အဲဒီ ထိုင်နေတဲ့ နေရာ/ပုံစံအတိုင်းမှာပဲ ကော်ဖီသောက်တယ် ဆိုတဲ့ ဆက်စပ်မှုမို့ -아서/어서 (앉아서 마시다) က အမှန်ဖြစ်ပါတယ်ခင်ဗျာ။<br>" +
+                 "• ① 앉고 (မှား): ထိုင်တာနဲ့ သောက်တာက သီးခြားစီ ခွဲလုပ်တဲ့ အလုပ်မဟုတ်လို့ 앉고 လို့ မသုံးပါဘူးခင်ဗျာ။<br>" +
+                 "• ③ 앉으니까 (မှား): \"ထိုင်တဲ့အတွက် ဖုန်းကြည့်ခဲ့တယ်\" ဆိုပြီး အကြောင်းပြချက် မဆီလျော်ပါဘူးခင်ဗျာ။<br>" +
+                 "• ④ 앉으려고 (မှား): \"ဆိုဖာပေါ် ထိုင်ဖို့အတွက် ကော်ဖီသောက်ခဲ့တယ်\" ဆိုတာ လွဲနေပါတယ်ခင်ဗျာ。"
+        },
+        {
+            q: "[11] 다음 빈칸에 들어갈 가장 알맞은 것을 고르십시오.\n\n비가 많이 오는 날에는 장화를 ______ 밖으로 나가십시오.",
+            a: ["신어서", "신고", "신으니까", "신으면서"], c: 1,
+            exp: "<b>အမှန်: ② 신고</b><br>" +
+                 "ရှင်းပြချက်: 신다 က ဖိနပ်စီးတာ ဖြစ်ပါတယ်ခင်ဗျာ။ မိုးကာဖိနပ်ကို စီးပြီး ဖိနပ်က ပျောက်မသွားဘဲ စီးထားလျက်သားကြီးနဲ့ အပြင်ထွက်ရတာမို့ ဝတ်ဆင်ခြင်းကြိယာ + 나가다 (ထွက်သွားသည်) မှာ -고 (신고) သာ အမှန်ဖြစ်ပါတယ်ခင်ဗျာ။<br>" +
+                 "• ① 신어서 (မှား): ခန္ဓာကိုယ်မှာ ဝတ်ဆင်ထားဆဲ အခြေအနေကို ပြဖို့အတွက် -아서/어서 ကို လုံးဝ တွဲမသုံးရပါဘူးခင်ဗျာ။<br>" +
+                 "• ③ 신으니까 (မှား): \"ဖိနပ်စီးတဲ့အတွက် အပြင်ထွက်ပါ\" ဆိုပြီး ဖိနပ်စီးတာက အပြင်ထွက်ရမယ့် အကြောင်းရင်း မဟုတ်ပါဘူးခင်ဗျာ။<br>" +
+                 "• ④ 신으면서 (မှား): ဖိနပ်စီးနေတုန်းတန်းလန်း အပြင်ပြေးထွက်သွားရမှာ မဟုတ်ပါဘူးခင်ဗျာ。"
+        },
+        {
+            q: "[12] 다음 빈칸에 들어갈 가장 알맞은 것을 고르십시오.\n\n주말에 방 청소를 깨끗이 하______ 빨래도 다 널었습니다.",
+            a: ["고", "여서", "니까", "느라고"], c: 0,
+            exp: "<b>အမှန်: ① 고</b><br>" +
+                 "ရှင်းပြချက်: အခန်းသန့်ရှင်းရေး သေချာလုပ်တယ် (အလုပ် ၁)၊ အဝတ်လည်း လှန်းခဲ့တယ် (အလုပ် ၂) ဆိုပြီး လုပ်ခဲ့တဲ့ အလုပ်တွေကို တစ်ခုပြီးတစ်ခု စီတန်းပြတာမို့ -고 က အမှန်ပါခင်ဗျာ။<br>" +
+                 "• ② 여서 (မှား): သန့်ရှင်းရေးလုပ်တာက အဝတ်လှန်းရခြင်းရဲ့ အကြောင်းရင်း မဟုတ်ပါဘူးခင်ဗျာ။<br>" +
+                 "• ③ 니까 (မှား): ရိုးရိုး အတိတ်အဖြစ်အပျက်ကို စီတန်းတာမို့ -(으)니까 မသုံးပါဘူးခင်ဗျာ။<br>" +
+                 "• ④ 느라고 (မှား): \"သန့်ရှင်းရေး လုပ်နေရတာကြောင့် အဝတ်လှန်းခဲ့တယ်\" ဆိုပြီး ရှေ့နောက် မဆက်စပ်ပါဘူးခင်ဗျာ。"
+        },
+        {
+            q: "[13] 다음 빈칸에 들어갈 가장 알맞은 것을 고르십시오.\n\n가: 바틴 씨, 지난주에 이사한 방은 마음에 들어요?\n나: 네, 방이 넓고 깨끗해______ 아주 좋아요.",
+            a: ["고", "서", "니까", "느라고"], c: 1,
+            exp: "<b>အမှန်: ② 서</b><br>" +
+                 "ရှင်းပြချက်: အခန်းကို အရမ်းသဘောကျရတဲ့ အကြောင်းရင်းက \"အခန်းက ကျယ်ပြီး သန့်ရှင်းနေလို့\" ဖြစ်ပါတယ်ခင်ဗျာ။ ဒီလို အကြောင်းပြချက်ကို ပြတာမို့ -아서/어서 (깨끗해서) က အမှန်ပါခင်ဗျာ။<br>" +
+                 "• ① 고 (မှား): သဘောကျရတဲ့ အကြောင်းရင်း ဖြစ်နေလို့ ရိုးရိုး -고 သုံးရင် အကြောင်းအကျိုး မပေါ်လွင်ပါဘူးခင်ဗျာ။<br>" +
+                 "• ③ 니까 (မှား): ရိုးရိုး ကိုယ့်ခံစားချက်ဖော်ပြချက် (좋아요) မှာ အကြောင်းပြချက်အတွက် -아서/어서 က အဆင်ပြေဆုံးပါခင်ဗျာ။<br>" +
+                 "• ④ 느라고 (မှား): 깨끗하다 က နာမဝိသေသနဖြစ်လို့ -느라고 ကို ကပ်သုံးလို့တောင် မရပါဘူးခင်ဗျာ。"
+        },
+        {
+            q: "[14] 다음 빈칸에 들어갈 가장 알맞은 것을 고르십시오.\n\n회사까지 거리가 멀어서 버스를 두 번이나 갈아______ 출근합니다.",
+            a: ["타고", "타서", "타니까", "타려고"], c: 0,
+            exp: "<b>အမှန်: ① 타고</b><br>" +
+                 "ရှင်းပြချက်: ဘတ်စ်ကား၊ ရထား စတဲ့ ယာဉ်တွေကို စီးနင်းပြီး သွားလာလှုပ်ရှားတဲ့အခါ ယာဉ်ပေါ် စီးနင်းထားလျက် အခြေအနေမို့ 타고 가다 / 타고 출근하다 (-고) လို့ ပုံသေ သုံးရပါတယ်ခင်ဗျာ။<br>" +
+                 "• ② 타서 (မှား): ယာဉ်စီးပြီး သွားတာကို -아서/어서 သုံးခွင့် မရှိပါဘူးခင်ဗျာ။<br>" +
+                 "• ③ 타니까 (မှား): ကားနှစ်ခါစီးတဲ့အတွက် ရုံးတက်တယ် ဆိုတာ အဓိပ္ပာယ် မရှိပါဘူးခင်ဗျာ။<br>" +
+                 "• ④ 타려고 (မှား): \"ကားနှစ်ခါစီးဖို့အတွက် ရုံးတက်တယ်\" ဆိုတာ လုံးဝ လွဲနေပါတယ်ခင်ဗျာ。"
+        },
+        {
+            q: "[15] 다음 빈칸에 들어갈 가장 알맞은 것을 고르십시오.\n\n냄비에 물을 붓고 가스레인지 불에 펄펄 ______ 라면 면발을 넣으세요.",
+            a: ["끓이고", "끓여서", "끓이니까", "끓이느라고"], c: 1,
+            exp: "<b>အမှန်: ② 끓여서</b><br>" +
+                 "ရှင်းပြချက်: ရေကို ပွက်ပွက်ဆူအောင် အရင်တည်ပြီး ဆူလာတဲ့ ရေနွေးအခြေအနေထဲမှာမှ ခေါက်ဆွဲထည့်ရတာပါခင်ဗျာ။ ရှေ့အခြေအနေ ပြီးပြတ်မှ ဆက်လုပ်ရတာမို့ -아서/어서 (끓여서) က အမှန်ပါခင်ဗျာ။<br>" +
+                 "• ① 끓이고 (မှား): 끓이고 넣으세요 လို့ သုံးရင် သီးခြားကိစ္စတွေလို ဖြစ်သွားသလို ခံစားရပါတယ်ခင်ဗျာ။<br>" +
+                 "• ③ 끓이니까 (မှား): ချက်ပြုတ်နည်း အဆင့်ဆင့် ဆက်စပ်ရာမှာ -아서/어서 (끓여서 넣다) က ပုံသေ အသုံးအနှုန်းပါခင်ဗျာ။<br>" +
+                 "• ④ 끓이느라고 (မှား): အနောက်မှာ အမိန့်ပေးစာကြောင်း (넣으세요) ပါနေလို့ -느라고 ကို လုံးဝ သုံးလို့ မရပါဘူးခင်ဗျာ。"
+        },
+        {
+            q: "[16] 다음 빈칸에 들어갈 가장 알맞은 것을 고르십시오.\n\n오늘 작업할 양을 공책에 미리 적어 ______ 반장님께 보여 드렸습니다.",
+            a: ["두고", "두어서", "두니까", "두려고"], c: 0,
+            exp: "<b>အမှန်: ① 두고</b><br>" +
+                 "ရှင်းပြချက်: စာအုပ်ထဲ ကြိုရေးမှတ်ထားတယ် (အလုပ် ၁)၊ ပြီးတော့ အဖွဲ့ခေါင်းဆောင်ကို ပြသခဲ့တယ် (အလုပ် ၂) ဆိုပြီး လုပ်ရပ်နှစ်ခုကို အစဉ်လိုက် ဖော်ပြတာမို့ -고 (두고) က အမှန်ပါခင်ဗျာ။<br>" +
+                 "• ② 두어서 (မှား): ရေးမှတ်ထားတာက ပြသရခြင်းရဲ့ အကြောင်းပြချက် မဟုတ်လို့ -아서/어서 က မသဘာဝကျပါဘူးခင်ဗျာ။<br>" +
+                 "• ③ 두니까 (မှား): ရိုးရိုး အတိတ်အဖြစ်အပျက် ဖြစ်လို့ -(으)니까 နဲ့ မကိုက်ပါဘူးခင်ဗျာ။<br>" +
+                 "• ④ 두려고 (မှား): \"မှတ်ထားဖို့အတွက် ခေါင်းဆောင်ကို ပြခဲ့တယ်\" ဆိုတော့ ရှေ့နောက် ပြောင်းပြန် ဖြစ်သွားပါတယ်ခင်ဗျာ。"
+        },
+        {
+            q: "[17] 다음 빈칸에 들어갈 가장 알맞은 것을 고르십시오.\n\n가: 투안 씨, 얼굴이 많이 안 좋아 보여요.\n나: 어제 야간 작업을 늦게까지 하______ 잠을 거의 못 잤거든요.",
+            a: ["고", "여서", "니까", "면서"], c: 0,
+            exp: "<b>အမှန်: ① 고</b><br>" +
+                 "ရှင်းပြချက်: မျက်နှာမကောင်းရတဲ့ အကြောင်းရင်း နှစ်ခုဖြစ်တဲ့ \"ညဆိုင်း ညဉ့်နက်တဲ့အထိ ဆင်းခဲ့ရတယ်\" နဲ့ \"အိပ်ရေးမဝခဲ့ဘူး\" ဆိုတဲ့ အချက်နှစ်ခုကို တန်းစီဖော်ပြတာမို့ -고 က အမှန်ပါခင်ဗျာ။ ဒါ့အပြင် အနောက်မှာ ~거든요 ပါပြီးသားမို့ ရှေ့မှာ -고 နဲ့ပဲ ဆက်ရပါမယ်ခင်ဗျာ။<br>" +
+                 "• ② 여서 (မှား): အနောက်မှာ ~거든요 ပါပြီးသားမို့ တစ်ကြောင်းတည်းမှာ အကြောင်းပြသဒ္ဒါ နှစ်ခါထပ်သွားပါမယ်ခင်ဗျာ။<br>" +
+                 "• ③ 니까 (မှား): ဝါကျတစ်ခုတည်းမှာ အကြောင်းပြသဒ္ဒါတွေ အထပ်ထပ် ဖြစ်သွားလို့ မရပါဘူးခင်ဗျာ။<br>" +
+                 "• ④ 면서 (မှား): အလုပ်လုပ်ရင်းနဲ့ တစ်ပြိုင်နက်တည်း အိပ်မပျော်တာ မဟုတ်ပါဘူးခင်ဗျာ。"
+        },
+        {
+            q: "[18] 다음 빈칸에 들어갈 가장 알맞은 것을 고르십시오.\n\n날씨가 건조______ 작업장 안에 불이 나기 쉬우니 소화기를 점검합시다.",
+            a: ["하고", "해서", "하니까", "므로"], c: 2,
+            exp: "<b>အမှန်: ③ 하니까</b><br>" +
+                 "ရှင်းပြချက်: • ① 고 (မှား): ရိုးရိုး အချက်အလက် စီတန်းတာမဟုတ်ဘဲ \"ရာသီဥတုခြောက်သွေ့လို့ မီးလောင်လွယ်တယ်\" ဆိုတဲ့ အကြောင်းပြချက်ဖြစ်နေလို့ ရိုးရိုး -고 သုံးလို့ မရပါဘူးခင်ဗျာ။<br>" +
+                 "• ② 여서 (မှား): အနောက်မှာ ~합시다 (ကြစို့) ပါနေတဲ့အတွက် အကြောင်းပြသဒ္ဒါ -아서/어서 (여서) ကို သုံးခွင့်မရှိလို့ မှားပါတယ်ခင်ဗျာ။ (အနောက်မှာ '불이 나기 쉽습니다' လို ရိုးရိုးဖော်ပြချက်ပဲ ဆုံးထားရင်တော့ 여서 သုံးလို့ရပါတယ်ခင်ဗျာ)။<br>" +
+                 "• ④ 므로 (မှား): -(으)므로 ဟာ တရားဝင် စာပေအရေးအသား၊ သတင်းကြေညာချက်တွေမှာပဲ သုံးပြီး အနောက်မှာ ~합시다 (တိုက်တွန်းချက်) နဲ့ တွဲသုံးလေ့မရှိပါဘူးခင်ဗျာ။<br>" +
+                 "ဒါကြောင့် စာမေးပွဲ သဒ္ဒါစည်းမျဉ်းစစ်စစ်အရ အဖြေမှန်က ③ 니까 ဖြစ်ပါတယ်ခင်ဗျာ!"
+        },
+        {
+            q: "[19] 다음 빈칸에 들어갈 가장 알맞은 것을 고르십시오.\n\n안전벨트를 허리에 단단히 ______ 고소 작업대에 올라가야 안전합니다.",
+            a: ["매고", "매어서", "매니까", "매느라고"], c: 0,
+            exp: "<b>အမှန်: ① 매고</b><br>" +
+                 "ရှင်းပြချက်: 매다 က ခါးပတ်ပတ်တာ ဖြစ်ပါတယ်ခင်ဗျာ။ ခါးပတ်ကို ပတ်ပြီး ခါးပတ်က ပျောက်မသွားဘဲ ခါးမှာ ပတ်ထားလျက်သားကြီးနဲ့ အမြင့်စင်ပေါ် တက်ရတာမို့ ဝတ်ဆင်ခြင်းကြိယာ + 올라가다 (တက်သွားသည်) မှာ -고 (매고) သာ အမှန်ဖြစ်ပါတယ်ခင်ဗျာ။<br>" +
+                 "• ② 매어서 (မှား): ဝတ်ဆင်ထားဆဲ အခြေအနေကို ပြရင် -아서/어서 ကို လုံးဝ မသုံးရပါဘူးခင်ဗျာ။<br>" +
+                 "• ③ 매니까 (မှား): \"ခါးပတ်ပတ်တဲ့အတွက် တက်ပါ\" ဆိုပြီး ခါးပတ်ပတ်တာက တက်ရမယ့် အကြောင်းရင်း မဟုတ်ပါဘူးခင်ဗျာ။<br>" +
+                 "• ④ 매느라고 (မှား): အနောက်မှာ ရိုးရိုး နာမဝိသေသန (안전합니다) ပါနေလို့ -느라고 ကို သုံးလို့ မရပါဘူးခင်ဗျာ。"
+        },
+        {
+            q: "[20] 다음 빈칸에 들어갈 가장 알맞은 것을 고르십시오.\n\n길을 잘 몰라서 지나가는 한국 사람에게 길을 물어______ 지하철역을 찾아갔습니다.",
+            a: ["보고", "봐서", "보니까", "보려고"], c: 1,
+            exp: "<b>အမှန်: ② 봐서</b><br>" +
+                 "ရှင်းပြချက်: လမ်းသွားလမ်းလာဆီ လမ်းမေးကြည့်တယ်၊ အဲဒီ လမ်းမေးပြီး သိလာတဲ့ အချက်အလက်ကို အခြေခံပြီးမှ ဘူတာရုံကို ရှာတွေ့သွားနိုင်ခဲ့တာပါခင်ဗျာ။ ရှေ့လုပ်ရပ်ရဲ့ အကျိုးဆက်ကြောင့် နောက်လုပ်ရပ် ဆက်ဖြစ်တာမို့ -아서/어서 (물어봐서) က အမှန်ဆုံးပါခင်ဗျာ။<br>" +
+                 "• ① 보고 (မှား): -고 သုံးရင် လမ်းမေးတာက သီးခြား၊ ဘူတာရှာတာက သီးခြား ဖြစ်သွားပြီး လမ်းမေးလို့ အဆင်ပြေသွားတဲ့ အဆက်အစပ် ပျောက်သွားပါတယ်ခင်ဗျာ။<br>" +
+                 "• ③ 보니까 (မှား): 찾아갔습니다 နဲ့ တွဲသုံးရင် သဘာဝမကျပါဘူးခင်ဗျာ။<br>" +
+                 "• ④ 보려고 (မှား): \"လမ်းမေးကြည့်ဖို့အတွက် ဘူတာရုံကို ရှာသွားခဲ့တယ်\" ဆိုတော့ အဓိပ္ပာယ် လုံးဝ ပြောင်းပြန် ဖြစ်သွားပါတယ်ခင်ဗျာ。"
+        }
+    ];
+              let currentIndex = 0;
+    let userAns = [];
+    let studentName = "";
+    let studentPassport = "";
+    let studentSector = "";
+    let totalSeconds = 20 * 60; // 20 Qsအတွက် မိနစ် ၂၀
+    let initialSeconds = totalSeconds;
+    let timerInterval = null;
+
+    function triggerExam() {
+        const nameInput = document.getElementById("username-field").value.trim();
+        const passportInput = document.getElementById("passport-field").value.trim();
+        const sectorInput = document.getElementById("sector-field").value;
+
+        if (!nameInput || !passportInput) {
+            alert("ကျေးဇူးပြု၍ နာမည်နှင့် Passport ကို ထည့်သွင်းပေးပါ။");
+            return;
+        }
+
+        studentName = nameInput;
+        studentPassport = passportInput;
+        studentSector = sectorInput;
+        userAns = Array(allQuestions.length).fill(null);
+
+        document.getElementById("welcome-screen").style.display = "none";
+        document.getElementById("exam-ui").style.display = "block";
+        
+        document.getElementById("header-user-info").textContent = `${studentName} | ${sectorInput.split(' ')[0]}`;
+
+        renderPalette();
+        loadQuestion(0);
+        startTimer();
+    }
+
+    function startTimer() {
+        const tEl = document.getElementById("timer");
+        timerInterval = setInterval(() => {
+            totalSeconds--;
+            let mins = Math.floor(totalSeconds / 60);
+            let secs = totalSeconds % 60;
+            tEl.textContent = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+            
+            let percent = (totalSeconds / initialSeconds) * 100;
+            document.getElementById("p-bar").style.width = percent + "%";
+
+            if (totalSeconds <= 0) {
+                clearInterval(timerInterval);
+                finishExam();
+            }
+        }, 1000);
+    }
+
+    function renderPalette() {
+        const pal = document.getElementById("palette");
+        pal.innerHTML = "";
+        allQuestions.forEach((_, idx) => {
+            const dot = document.createElement("div");
+            dot.className = `q-dot ${idx === currentIndex ? 'active' : ''} ${userAns[idx] !== null ? 'done' : ''}`;
+            dot.textContent = idx + 1;
+            dot.onclick = () => loadQuestion(idx);
+            pal.appendChild(dot);
+        });
+    }
+
+    function loadQuestion(idx) {
+        currentIndex = idx;
+        document.getElementById("q-text").innerHTML = allQuestions[currentIndex].q;
+
+        const ansList = document.getElementById("ans-list");
+        ansList.innerHTML = "";
+        allQuestions[currentIndex].a.forEach((opt, optIdx) => {
+            const item = document.createElement("div");
+            item.className = `opt-item ${userAns[currentIndex] === optIdx ? 'active' : ''}`;
+            item.innerHTML = `<span class="opt-num">${optIdx + 1}</span> <span>${opt}</span>`;
+            item.onclick = () => selectOption(optIdx);
+            ansList.appendChild(item);
+        });
+        renderPalette();
+    }
+
+    function selectOption(optIdx) {
+        userAns[currentIndex] = optIdx;
+        loadQuestion(currentIndex);
+    }
+
+    function prevQ() { if (currentIndex > 0) loadQuestion(currentIndex - 1); }
+    function nextQ() { if (currentIndex < allQuestions.length - 1) loadQuestion(currentIndex + 1); }
+
+    function openImageModal(imgSrc) {
+        const modal = document.getElementById("img-modal");
+        document.getElementById("modal-img-element").src = imgSrc;
+        modal.style.display = "flex";
+    }
+
+    function closeImageModal() {
+        document.getElementById("img-modal").style.display = "none";
+    }
+
+    function finishExam() {
+        let answeredCount = userAns.filter(ans => ans !== null).length;
+        if (answeredCount < allQuestions.length) {
+            if (!confirm(`မဖြေရသေးသော မေးခွန်းများ ကျန်ရှိနေပါသည်။ တင်သွင်းရန် သေချာပါသလား?`)) return;
+        }
+
+        clearInterval(timerInterval);
+        
+        let correctCount = 0;
+        allQuestions.forEach((item, i) => {
+            if (userAns[i] === item.c) correctCount++;
+        });
+
+        const finalScore = correctCount * 5;
+        
+        const timeUsedSec = initialSeconds - totalSeconds;
+        const usedMins = Math.floor(timeUsedSec / 60);
+        const usedSecs = timeUsedSec % 60;
+        const timeStr = `${usedMins.toString().padStart(2, '0')}m ${usedSecs.toString().padStart(2, '0')}s`;
+
+        document.getElementById("exam-ui").style.display = "none";
+        document.getElementById("result-screen").style.display = "block";
+        
+        document.getElementById("res-score").textContent = finalScore;
+        document.getElementById("res-name").textContent = studentName;
+        document.getElementById("res-passport").textContent = studentPassport;
+        document.getElementById("res-sector").textContent = studentSector;
+        document.getElementById("res-acc").textContent = `${correctCount} / 20 (${finalScore} မှတ်)`;
+        document.getElementById("res-time").textContent = timeStr;
+    }
+
+    function showReview() {
+        document.getElementById("result-screen").style.display = "none";
+        const reviewContainer = document.getElementById("review-screen");
+        const reviewContent = document.getElementById("review-content");
+        reviewContent.innerHTML = "";
+
+        allQuestions.forEach((item, idx) => {
+            const userPick = userAns[idx];
+            const isCorrect = userPick === item.c;
+            const card = document.createElement("div");
+            card.className = "review-card";
+            card.style.background = "#f8fafc";
+            card.style.border = "1px solid #e2e8f0";
+            card.style.borderRadius = "12px";
+            card.style.padding = "12px";
+            card.style.marginBottom = "10px";
+
+            let optsHTML = "";
+            item.a.forEach((opt, optIdx) => {
+                let optStyle = "padding:6px 10px; border-radius:6px; font-size:11px; margin-bottom:3px; display:flex; justify-content:space-between; border:1px solid #e2e8f0; background:#fff;";
+                let badge = "";
+                if (optIdx === item.c) {
+                    optStyle += " background:#dcfce7; border-color:#22c55e; color:#15803d; font-weight:800;";
+                    badge = `<span style="background:#22c55e; color:#fff; font-size:9px; padding:2px 5px; border-radius:4px;">အဖြေမှန်</span>`;
+                } else if (optIdx === userPick && !isCorrect) {
+                    optStyle += " background:#fee2e2; border-color:#ef4444; color:#b91c1c; font-weight:800;";
+                    badge = `<span style="background:#ef4444; color:#fff; font-size:9px; padding:2px 5px; border-radius:4px;">သင့်အဖြေ</span>`;
+                }
+                optsHTML += `<div style="${optStyle}"><span>${optIdx + 1}. ${opt}</span>${badge}</div>`;
+            });
+
+            card.innerHTML = `
+                <div style="font-size:12px; font-weight:700; color:#0f172a; margin-bottom:6px;">မေးခွန်း ${idx + 1}။<br>${item.q}</div>
+                <div>${optsHTML}</div>
+            `;
+            reviewContent.appendChild(card);
+        });
+        reviewContainer.style.display = "block";
+    }
+
+    function closeReview() {
+        document.getElementById("review-screen").style.display = "none";
+        document.getElementById("result-screen").style.display = "block";
+    }
+
+    function showExplanationScreen() {
+        document.getElementById("result-screen").style.display = "none";
+        const screen = document.getElementById("explanation-screen");
+        const content = document.getElementById("explanation-content");
+        content.innerHTML = "";
+
+        allQuestions.forEach((item, idx) => {
+            const userPick = userAns[idx];
+            const isCorrect = userPick === item.c;
+            const itemDiv = document.createElement("div");
+            itemDiv.className = "exp-item";
+
+            let userChoiceText = userPick !== null ? `${userPick + 1}. ${item.a[userPick]}` : "မဖြေရသေးပါ";
+            let correctChoiceText = `${item.c + 1}. ${item.a[item.c]}`;
+
+            itemDiv.innerHTML = `
+                <div class="exp-q-title">မေးခွန်း ${idx + 1}</div>
+                <div><b>မေးခွန်း:</b> ${item.q}</div>
+                <div style="margin-top: 4px;"><b>သင့်အဖြေ:</b> <span class="${isCorrect ? 'exp-correct' : 'exp-wrong'}">${userChoiceText}</span></div>
+                <div style="margin-top: 2px;"><b>အမှန်:</b> <span class="exp-correct">${correctChoiceText}</span></div>
+                <div class="exp-detail">${item.exp}</div>
+            `;
+            content.appendChild(itemDiv);
+        });
+        screen.style.display = "block";
+    }
+
+    function closeExplanationScreen() {
+        document.getElementById("explanation-screen").style.display = "none";
+        document.getElementById("result-screen").style.display = "block";
+    }
+    </script>
+</body>
+</html>
